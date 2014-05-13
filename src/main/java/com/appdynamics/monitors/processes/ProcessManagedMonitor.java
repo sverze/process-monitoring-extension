@@ -109,7 +109,7 @@ public class ProcessManagedMonitor extends AManagedMonitor {
             initialise(taskArguments, taskContext);
         }
 
-        logger.info("Process monitor execute started");
+        logger.trace("Process monitor execute started");
 
         try {
             Collection<ProcessMonitor> monitors = context.getProcessMonitors();
@@ -133,7 +133,7 @@ public class ProcessManagedMonitor extends AManagedMonitor {
             throw new ProcessMonitorException("Unexpected failure during process monitoring", e);
         }
 
-        logger.info("Process monitor execute completed");
+        logger.trace("Process monitor execute completed");
         return new TaskOutput("Process monitor execute completed");
     }
 

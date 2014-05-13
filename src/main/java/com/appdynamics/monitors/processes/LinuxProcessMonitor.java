@@ -48,22 +48,23 @@ public class LinuxProcessMonitor extends AbstractProcessMonitor {
         ProcessMetrics processMetrics = new ProcessMetrics(getProperties().getName());
 
         if (!processes.isEmpty()) {
-            // build the pidstat command to execute
-            StringBuilder pidStatCommand = new StringBuilder();
-            pidStatCommand.append("pidstat -ruh ").append(getContext().getProcessSampleInterval()).append(" 1 -p ");
-
+            // build a CSV of all the processes to add to pidstat
+            StringBuilder processesCsv = new StringBuilder();
             for (int i = 0; i < processes.size(); i++) {
-                pidStatCommand.append(processes.get(i));
+                processesCsv.append(processes.get(i));
                 if (i + 1 < processes.size()) {
-                    pidStatCommand.append(",");
+                    processesCsv.append(",");
                 }
             }
 
             // execute the pidstat command (run for sample period for 1 iteration)
             List<String> processLines = execute(new String[] {
-                    "/bin/sh" ,
-                    "-c",
-                    pidStatCommand.toString()});
+                    "pidstat",
+                    "-ruh",
+                    Integer.toString(getContext().getProcessSampleInterval()),
+                    "1",
+                    "-p",
+                    processesCsv.toString()});
 
             // the fist 3 lines of pidstat need contain metadata, anything after that is valuable
             if (processLines.size() > 3) {
@@ -76,7 +77,7 @@ public class LinuxProcessMonitor extends AbstractProcessMonitor {
                 }
             } else {
                 // the processes are no longer there, reset the process identity check interval
-                logger.info("Processes " + processes + " are no longer present, re-checking identities");
+                logger.info("Processes " + processes + " are no longer present, re-checking process identities");
                 lastProcessIdentityCheck = 0;
             }
         }  else {
@@ -102,7 +103,7 @@ public class LinuxProcessMonitor extends AbstractProcessMonitor {
         for (String processLine : processLines) {
             String[] processWords = processLine.split("\\s+");
             String pid = getProcessWord(processWords, PID_WORD_POSITION);
-            logger.info("Identified PID ["+ pid + "] matching command [" + getProperties().getCommand() +"]");
+            logger.debug("Identified PID [" + pid + "] matching command [" + getProperties().getCommand() + "]");
             processes.add(pid);
         }
 
