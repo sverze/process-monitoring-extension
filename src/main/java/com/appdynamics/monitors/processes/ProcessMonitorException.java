@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.appdynamics.monitors.processes;
 
+import com.singularity.ee.agent.systemagent.api.exception.TaskExecutionException;
 
-package com.appdynamics.monitors.processes.processdata;
+public class ProcessMonitorException extends TaskExecutionException {
+	private static final long serialVersionUID = 1L;
 
-public class ProcessData {
-	public String name;
-	public int numOfInstances;
-	public float memPercent;
-	public float CPUPercent;
-	
-	public ProcessData(String name, float CPUPercent, float memPercent){
-		this.name = name;
-		this.numOfInstances = 1;
-		this.memPercent = memPercent;
-		this.CPUPercent = CPUPercent;	
-	}
+    public ProcessMonitorException() {
+    }
+
+    public ProcessMonitorException(String message) {
+        super(message);
+    }
+
+    public ProcessMonitorException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ProcessMonitorException(Throwable cause) {
+        super(cause);
+    }
 }

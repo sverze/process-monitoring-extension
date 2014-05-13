@@ -11,32 +11,29 @@
                 <type>java</type>
                 <java-task>
                         <classpath>ProcessMonitor.jar;lib/dom4j-2.0.0-ALPHA-2.jar</classpath>
-                        <impl-class>com.appdynamics.monitors.processes.ProcessMonitor</impl-class>
+                        <impl-class>com.appdynamics.monitors.processes.ProcessManagedMonitor</impl-class>
                 </java-task>
                 
                 <task-arguments>
                		<!-- CONFIGURE IF NECESSARY:
                 		this is the path to the file properties.xml
-                		i.e.: if you created a directory in 'monitors' named other than 'ProcessMonitor',
+                		i.e.: if you created a directory in 'monitors' named other than 'ProcessManagedMonitor',
                 	 	change the field 'default-value' to the appropriate directory.
                 	-->
+
+                    <!-- Mandatory -  The absolute path location of the process properties (to be deprecated) -->
                     <argument name="properties-path" is-required="true" default-value="monitors/ProcessMonitor/properties.xml"/>
-                    
-                    <!-- CONFIGURE PATH TO PROCESSES FILE 
-                    	this is the path to the file .monitored-processes
-                    	Default value is "monitors/ProcessMonitor/.monitored-processes"
-                    	Change the field 'default-value' to have your own custom path to the file
-                     -->
-                    <argument name="monitored-processes-path" is-required="true" default-value="monitors/ProcessMonitor/.monitored-processes"/>
-                    
-                	<!-- CONFIGURE METRIC PATH (OPTIONAL):
-                     		You can configure a metric path, such that only one tier is going to receive
-                     		metrics from this monitor. The pattern is: Server|Component:<id or name>
-                     		Component id or name is the id or name of the tier.
-                     		Default (if default-value="") is "Custom Metrics|<Windows/Linux> Processes" under 
-                     		Application Infrastructure Performance in every tier
-                	-->
-                    <argument name="metric-path" is-required="false" default-value=""/>
+
+                    <!-- Optional - Sample interval (sec) used to obtain metrics stats for all monitored processes -->
+                    <argument name="process-sample-interval" is-required="false" default-value="1"/>
+
+                    <!-- Optional - Used as an interval (sec) to periodically check if new processes that match the
+                                    properties command are present, this is useful if processes are (re)started, killed
+                                    or additional processes added -->
+                    <argument name="process-identity-check-interval" is-required="false" default-value="60"/>
+
+                    <!-- Optional - The initial metric path which is used as the root directory under the tier -->
+                    <argument name="metric-path" is-required="false" default-value="Custom Metrics"/>
                 </task-arguments>
         </monitor-run-task>
 </monitor>
