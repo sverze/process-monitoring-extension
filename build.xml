@@ -3,12 +3,18 @@
     <property name="conf.dir" value="conf" />
     <property name="project.name" value="ProcessMonitor"/>
     <property name="lib.dir" value="lib"/>
+
     <path id="cp">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>
     </path>
-    <target name="build">
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="build" depends="clean">
         <mkdir dir="${build.dir}/classes"/>
-        <javac destdir="${build.dir}/classes" source="1.5" target="1.5" srcdir="src/main/java" classpathref="cp" debug="on"/>
+        <javac destdir="${build.dir}/classes" source="1.7" target="1.7" srcdir="src/main/java" classpathref="cp" debug="on"/>
         <mkdir dir="${build.dir}/ProcessMonitor"/>
         <mkdir dir="${build.dir}/ProcessMonitor/lib"/>
         <jar destfile="${build.dir}/ProcessMonitor/${project.name}.jar">
@@ -25,13 +31,11 @@
     	</copy>
         <delete dir="${build.dir}/classes"/>
     </target>
+
     <target name="package" depends="build">
         <zip destfile="${build.dir}/ProcessMonitor.zip">
             <zipfileset dir="${build.dir}/ProcessMonitor" filemode="755" prefix="ProcessMonitor/"/>
         </zip>
         <delete dir="${build.dir}/ProcessMonitor"/>
-    </target>
-    <target name="clean">
-        <delete dir="${build.dir}"/>
     </target>
 </project>

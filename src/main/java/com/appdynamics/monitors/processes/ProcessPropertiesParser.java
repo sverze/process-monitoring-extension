@@ -45,12 +45,6 @@ class ProcessPropertiesParser {
         }
     }
 
-    /**
-     * Parses the properties file for the Process Monitor
-     *
-     * @param xmlReader: An reader containing XML
-     * @throws DocumentException
-     */
     public List<ProcessProperties> parseXML(Reader xmlReader) throws DocumentException {
         List<ProcessProperties> processes = new ArrayList<ProcessProperties>();
         SAXReader reader = new SAXReader();
@@ -82,6 +76,12 @@ class ProcessPropertiesParser {
                 processes.add(processProperties);
             }
         }
+        return processes;
+    }
+
+    public List<ProcessProperties> parseJSON(String jsonString) throws DocumentException {
+        List<ProcessProperties> processes = new ArrayList<ProcessProperties>();
+//        JsonParser parser = JsonParserFactory.createParser(new StringReader(jsonString));
         return processes;
     }
 }

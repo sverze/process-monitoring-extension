@@ -33,6 +33,10 @@ import static com.appdynamics.monitors.processes.ProcessMonitorContext.Operating
 import static java.lang.String.valueOf;
 
 public class ProcessManagedMonitor extends AManagedMonitor {
+    public static final String PROPERTIES_PATH_KEY = "properties-path";
+    public static final String PROCESS_SAMPLE_INTERVAL_KEY = "process-sample-interval";
+    public static final String PROCESS_IDENTITY_CHECK_INTERVAL_KEY = "process-identity-check-interval";
+    public static final String METRIC_PATH_KEY = "metric-path";
     private ExecutorService executorService;
     private ProcessMonitorContext context;    
     private AtomicBoolean initialised;
@@ -47,13 +51,20 @@ public class ProcessManagedMonitor extends AManagedMonitor {
         initialised = new AtomicBoolean(false);
     }
 
+    public ProcessMonitorContext getProcessMonitorContext() {
+        return context;
+    }
+
     public void initialise(Map<String, String> taskArguments, TaskExecutionContext taskContext)
             throws TaskExecutionException {
+        // TODO: rather than initialise, detect changes and apply, although be-careful of the periodic frequency
+        // TODO: reading from the XML file is time consuming, maybe use a file watcher instead
+
         // mandatory
-        if (!taskArguments.containsKey("properties-path")) {            
+        if (!taskArguments.containsKey(PROPERTIES_PATH_KEY)) {
             throw new ProcessMonitorException("Monitor configuration is missing 'properties-path'");
-        }                                                  
-        
+        }
+
         if (getOperatingSystem() == null) {
             throw new ProcessMonitorException("Unsupported operating system");
         }
@@ -63,20 +74,20 @@ public class ProcessManagedMonitor extends AManagedMonitor {
 
         context = new ProcessMonitorContext();
         context.setLogger(taskContext.getLogger());
-        context.setPropertiesPath(taskArguments.get("properties-path"));
+        context.setPropertiesPath(taskArguments.get(PROPERTIES_PATH_KEY));
         context.setOperatingSystem(getOperatingSystem());
-                
+
         // optional
-        if (taskArguments.containsKey("process-sample-interval")) {
-            context.setProcessSampleInterval(taskArguments.get("process-sample-interval"));
+        if (taskArguments.containsKey(PROCESS_SAMPLE_INTERVAL_KEY)) {
+            context.setProcessSampleInterval(taskArguments.get(PROCESS_SAMPLE_INTERVAL_KEY));
         }
 
-        if (taskArguments.containsKey("process-identity-check-interval")) {
-            context.setProcessIdentityCheckInterval(taskArguments.get("process-identity-check-interval"));
+        if (taskArguments.containsKey(PROCESS_IDENTITY_CHECK_INTERVAL_KEY)) {
+            context.setProcessIdentityCheckInterval(taskArguments.get(PROCESS_IDENTITY_CHECK_INTERVAL_KEY));
         }
 
-        if (taskArguments.containsKey("metric-path") && !taskArguments.get("metric-path").equals("")) {
-            context.setMetricPath(taskArguments.get("metric-path"));
+        if (taskArguments.containsKey(METRIC_PATH_KEY)) {
+            context.setMetricPath(taskArguments.get(METRIC_PATH_KEY));
         }
 
         try {
@@ -149,29 +160,29 @@ public class ProcessManagedMonitor extends AManagedMonitor {
         logger.debug("Process monitor starting reporting metrics for " + processName);
 
         getMetricWriter(metricPath(processName, "CPU Utilization in Percent"),
-                MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
-                MetricWriter.METRIC_TIME_ROLLUP_TYPE_CURRENT,
-                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_COLLECTIVE)
+                MetricWriter.METRIC_AGGREGATION_TYPE_AVERAGE,
+                MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL)
                 .printMetric(valueOf(processMetrics.getCpuPercent()));
         logger.debug("Metric reported: " + processName + ", CPU Utilization in Percent: " + processMetrics.getCpuPercent());
 
         getMetricWriter(metricPath(processName, "Memory Utilization in Percent"),
-                MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
-                MetricWriter.METRIC_TIME_ROLLUP_TYPE_CURRENT,
-                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_COLLECTIVE)
+                MetricWriter.METRIC_AGGREGATION_TYPE_AVERAGE,
+                MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL)
                 .printMetric(valueOf(processMetrics.getMemoryPercent()));
         logger.debug("Metric reported: " + processName + ", Memory Utilization in Percent: " + processMetrics.getMemoryPercent());
 
         getMetricWriter(metricPath(processName, "Memory Utilization Absolute"),
-                MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
-                MetricWriter.METRIC_TIME_ROLLUP_TYPE_CURRENT,
-                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_COLLECTIVE)
+                MetricWriter.METRIC_AGGREGATION_TYPE_AVERAGE,
+                MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL)
                 .printMetric(valueOf(processMetrics.getMemoryAbsolute()));
         logger.debug("Metric reported: " + processName + ", Memory Utilization Absolute: " + processMetrics.getMemoryAbsolute());
 
         getMetricWriter(metricPath(processName, "Number of Instances"),
-                MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
-                MetricWriter.METRIC_TIME_ROLLUP_TYPE_CURRENT,
+                MetricWriter.METRIC_AGGREGATION_TYPE_AVERAGE,
+                MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_COLLECTIVE)
                 .printMetric(valueOf(processMetrics.getNumOfInstances()));
         logger.debug("Metric reported: " + processName + ", Number of Instances: " + processMetrics.getNumOfInstances());
@@ -181,6 +192,6 @@ public class ProcessManagedMonitor extends AManagedMonitor {
 
     private String metricPath(String processName, String metricName) {
         return String.format("%s|%s|%s|%s",
-                context.getMetricPath(), context.getOperatingSystem().getProcessGroupName(), processName, metricName);
+            context.getMetricPath(), context.getOperatingSystem().getProcessGroupName(), processName, metricName);
     }
 }

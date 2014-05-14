@@ -4,7 +4,9 @@
         <description>Processes monitor</description>
         <monitor-configuration></monitor-configuration>
         <monitor-run-task>
-                <execution-style>continuous</execution-style>
+                <execution-style>periodic</execution-style>
+                <execution-frequency-in-seconds>15</execution-frequency-in-seconds>
+                <execution-timeout-in-secs>60</execution-timeout-in-secs>
                 <name>Processes Monitor Run Task</name>
                 <display-name>Processes Monitor Task</display-name>
                 <description>Processes Monitor Task</description>
@@ -15,14 +17,9 @@
                 </java-task>
                 
                 <task-arguments>
-               		<!-- CONFIGURE IF NECESSARY:
-                		this is the path to the file properties.xml
-                		i.e.: if you created a directory in 'monitors' named other than 'ProcessManagedMonitor',
-                	 	change the field 'default-value' to the appropriate directory.
-                	-->
-
-                    <!-- Mandatory -  The absolute path location of the process properties (to be deprecated) -->
+               		<!-- Mandatory -  The absolute path location of the process properties -->
                     <argument name="properties-path" is-required="true" default-value="monitors/ProcessMonitor/properties.xml"/>
+
 
                     <!-- Optional - Sample interval (sec) used to obtain metrics stats for all monitored processes -->
                     <argument name="process-sample-interval" is-required="false" default-value="1"/>
@@ -33,7 +30,7 @@
                     <argument name="process-identity-check-interval" is-required="false" default-value="60"/>
 
                     <!-- Optional - The initial metric path which is used as the root directory under the tier -->
-                    <argument name="metric-path" is-required="false" default-value="Custom Metrics"/>
+                    <argument name="metric-path" is-required="false"  default-value="Custom Metrics"/>
                 </task-arguments>
         </monitor-run-task>
 </monitor>
